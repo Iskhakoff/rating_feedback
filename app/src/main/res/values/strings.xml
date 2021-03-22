@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FeedbackRatings</string>
+    <string name="label_text_feedback">Leave any feedback</string>
+    <string name="label_submit_button">submit</string>
 </resources>

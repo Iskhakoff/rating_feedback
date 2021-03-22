@@ -22,12 +22,12 @@ class HeaderViewHolder(inflater: LayoutInflater, parent: ViewGroup, private val 
 
         mRatingBar.setOnRatingBarChangeListener { _, rating, fromUser ->
             if (fromUser) {
-                listener.onChangeRatingHeader(layoutPosition, rating)
+                listener.onChangeRatingHeader(rating)
             }
         }
     }
 
     interface OnChangeRatingHeaderListener {
-        fun onChangeRatingHeader(position : Int, rating : Float)
+        fun onChangeRatingHeader(rating : Float)
     }
 }

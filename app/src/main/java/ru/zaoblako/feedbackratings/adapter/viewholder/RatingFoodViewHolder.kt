@@ -19,6 +19,7 @@ class RatingFoodViewHolder(inflater : LayoutInflater, parent : ViewGroup, privat
         cell as Cells.RatingFoodCell
         mTitle.text = cell.title
         mRatingBar.rating = cell.rating
+        mRatingBar.isEnabled = !cell.isNoFood
         mCheckbox.isChecked = cell.isNoFood
 
         mCheckbox.setOnCheckedChangeListener { _, isChecked ->

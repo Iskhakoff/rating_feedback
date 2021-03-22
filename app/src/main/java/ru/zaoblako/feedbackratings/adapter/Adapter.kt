@@ -18,13 +18,12 @@ class Adapter(private val inflater : LayoutInflater,
     companion object {
         val DIFF_UTIL = object : DiffUtil.ItemCallback<Cells>(){
             override fun areItemsTheSame(oldItem: Cells, newItem: Cells): Boolean {
-                return oldItem == newItem
+                return oldItem.title == newItem.title
             }
 
             override fun areContentsTheSame(oldItem: Cells, newItem: Cells): Boolean {
                 return oldItem == newItem
             }
-
         }
     }
 

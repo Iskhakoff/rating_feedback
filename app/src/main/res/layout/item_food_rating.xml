@@ -12,7 +12,7 @@
 
     <RatingBar
         android:id="@+id/food_rating_bar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:theme="@style/RatingBarStyle"
         android:layout_below="@id/food_title_category" />
@@ -21,6 +21,7 @@
         android:id="@+id/food_indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/food_rating_bar"/>
+        android:layout_below="@id/food_rating_bar"
+        android:text="@string/label_no_food_checkbox"/>
 
 </RelativeLayout>

@@ -6,23 +6,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.TextInputEditText
 import ru.zaoblako.feedbackratings.adapter.Adapter
+import ru.zaoblako.feedbackratings.adapter.decoration.RatingItemSpacingDecoration
 import ru.zaoblako.feedbackratings.adapter.viewholder.HeaderViewHolder
 import ru.zaoblako.feedbackratings.adapter.viewholder.RatingFoodViewHolder
 import ru.zaoblako.feedbackratings.adapter.viewholder.RatingViewHolder
+import ru.zaoblako.feedbackratings.data.ViewState
 
-class MainFragment : Fragment(), HeaderViewHolder.OnChangeRatingHeaderListener, RatingViewHolder.OnRatingChangeListener, RatingFoodViewHolder.OnChangeFoodRatingListener {
+class MainFragment : Fragment(),
+        HeaderViewHolder.OnChangeRatingHeaderListener,
+        RatingViewHolder.OnRatingChangeListener,
+        RatingFoodViewHolder.OnChangeFoodRatingListener {
 
     private lateinit var mRecycler : RecyclerView
     private lateinit var mProgress : ProgressBar
     private lateinit var mMainContainer : NestedScrollView
-    private lateinit var mFeedBackText : TextInputEditText
+    private lateinit var mFeedBackText : EditText
     private lateinit var mSubmit : Button
 
     private lateinit var adapter : Adapter
@@ -31,13 +39,13 @@ class MainFragment : Fragment(), HeaderViewHolder.OnChangeRatingHeaderListener, 
     companion object {
         @JvmStatic
         fun newInstance() : MainFragment {
-            val fragment = MainFragment()
-            return fragment
+            return MainFragment()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -49,29 +57,66 @@ class MainFragment : Fragment(), HeaderViewHolder.OnChangeRatingHeaderListener, 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         setupUI(view)
         setupRecycler()
+
+        mViewModel.getCells().observe(viewLifecycleOwner, {
+            adapter.submitList(it)
+        })
+
+        mViewModel.getState().observe(viewLifecycleOwner, {
+            render(it)
+        })
+
+        mSubmit.setOnClickListener {
+            mViewModel.submitTotalFeedback(text = mFeedBackText.text.toString())
+        }
     }
 
     private fun setupRecycler() {
-
-    }
-
-    override fun onChangeRatingHeader(position: Int, rating: Float) {
-        TODO("Not yet implemented")
+        adapter = Adapter(layoutInflater, this, this, this)
+        mRecycler.layoutManager = LinearLayoutManager(context)
+        mRecycler.isNestedScrollingEnabled = false
+        mRecycler.addItemDecoration(RatingItemSpacingDecoration(
+            resources.getDimension(R.dimen.horizontal_spacing_rating_list_item).toInt(),
+            resources.getDimension(R.dimen.vertical_spacing_rating_list_item).toInt()
+        ))
+        mRecycler.itemAnimator = null
+        mRecycler.adapter = adapter
     }
 
     override fun onRatingChange(position: Int, rating: Float) {
-        TODO("Not yet implemented")
+        mViewModel.updateRating(position, rating)
     }
 
     override fun onChangeFoodRating(position: Int, rating: Float) {
-        TODO("Not yet implemented")
+        mViewModel.updateFoodRating(position, rating)
     }
 
     override fun onSelectedNoFoodOption(position: Int, isNoFood: Boolean) {
-        TODO("Not yet implemented")
+        mViewModel.selectedNoFood(position, isNoFood)
+    }
+
+    override fun onChangeRatingHeader(rating: Float) {
+        mViewModel.updateHeaderRating(rating)
+    }
+
+    private fun render(state: ViewState) {
+        when (state){
+            is ViewState.Loading -> {
+                mMainContainer.visibility = View.GONE
+                mProgress.visibility = View.VISIBLE
+            }
+            is ViewState.SuccessSubmit -> {
+                mProgress.visibility = View.GONE
+                mMainContainer.visibility = View.VISIBLE
+                Toast.makeText(context, state.totalFeedback.toString(), Toast.LENGTH_LONG).show()
+            }
+            is ViewState.Default -> {
+                mProgress.visibility = View.GONE
+                mMainContainer.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setupUI(view : View) {

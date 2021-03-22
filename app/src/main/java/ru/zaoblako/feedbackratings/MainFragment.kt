@@ -49,7 +49,7 @@ class MainFragment : Fragment(), HeaderViewHolder.OnChangeRatingHeaderListener, 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewModel = ViewModelProvider()
+        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         setupUI(view)
         setupRecycler()
     }
